@@ -1,9 +1,7 @@
-import 'dart:math';
-
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:build/src/builder/build_step.dart';
-import 'package:nomo_ui_kit/nomo_ui_generator/lib/annotations.dart';
+import 'package:nomo_ui_generator/annotations.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'package:analyzer/dart/constant/value.dart';

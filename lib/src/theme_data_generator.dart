@@ -4,7 +4,7 @@
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:nomo_ui_kit/nomo_ui_generator/lib/src/model_visitor.dart';
+import 'package:nomo_ui_generator/src/model_visitor.dart';
 import 'package:source_gen/source_gen.dart';
 
 import '../annotations.dart';
