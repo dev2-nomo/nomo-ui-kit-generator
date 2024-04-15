@@ -9,6 +9,9 @@ import 'package:source_gen/source_gen.dart';
 
 import '../annotations.dart';
 
+const ignore_lints =
+    "// ignore_for_file: prefer_constructors_over_static_methods,avoid_unused_constructor_parameters, require_trailing_commas, avoid_init_to_null, use_named_constants, strict_raw_type, prefer_const_constructors, unnecessary_non_null_assertion";
+
 class ComponentThemeDataGenerator
     extends GeneratorForAnnotation<NomoComponentThemeData> {
   @override
@@ -22,8 +25,7 @@ class ComponentThemeDataGenerator
     final visitor = ModelVisitor();
     element.visitChildren(visitor);
 
-    buffer.writeln(
-        "// ignore_for_file: prefer_constructors_over_static_methods,avoid_unused_constructor_parameters, require_trailing_commas, avoid_init_to_null, use_named_constants ");
+    buffer.writeln(ignore_lints);
 
     final _className = element.name;
     if (_className == null) throw Exception("Class name is null");

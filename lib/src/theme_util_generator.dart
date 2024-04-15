@@ -2,6 +2,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:build/src/builder/build_step.dart';
 import 'package:nomo_ui_generator/annotations.dart';
+import 'package:nomo_ui_generator/src/theme_data_generator.dart';
 import 'package:source_gen/source_gen.dart';
 
 import 'package:analyzer/dart/constant/value.dart';
@@ -37,9 +38,7 @@ class ThemeUtilGenerator extends GeneratorForAnnotation<NomoThemeUtils> {
 
     final buffer = StringBuffer();
 
-    buffer.writeln(
-      '// ignore_for_file: prefer_constructors_over_static_methods,avoid_unused_constructor_parameters, require_trailing_commas, avoid_init_to_null ',
-    );
+    buffer.writeln(ignore_lints);
 
     lerp(buffer, className, fieldMap);
 
