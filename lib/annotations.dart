@@ -6,14 +6,16 @@ class NomoComponentThemeData {
 
 class NomoColorField<T> {
   final T value;
+  final bool lerp;
 
-  const NomoColorField(this.value);
+  const NomoColorField(this.value, {this.lerp = true});
 }
 
 class NomoSizingField<T> {
   final T value;
+  final bool lerp;
 
-  const NomoSizingField(this.value);
+  const NomoSizingField(this.value, {this.lerp = true});
 }
 
 class NomoConstant<T extends Object> {
