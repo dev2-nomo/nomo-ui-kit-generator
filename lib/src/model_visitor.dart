@@ -11,11 +11,11 @@ class ModelVisitor extends SimpleElementVisitor {
 
   Map<String, dynamic> fields = {};
 
-  Map<String, (String, String)> colorFields = {};
+  Map<String, (String, String, bool)> colorFields = {};
 
-  Map<String, (String, String)> sizingFields = {};
+  Map<String, (String, String, bool)> sizingFields = {};
 
-  Map<String, (String, String)> constants = {};
+  Map<String, (String, String, bool)> constants = {};
 
   @override
   visitConstructorElement(ConstructorElement element) {
@@ -29,19 +29,32 @@ class ModelVisitor extends SimpleElementVisitor {
     );
 
     if (colorFieldAnnotation != null) {
-      final value = colorFieldAnnotation.computeConstantValue();
+      final fieldValue = colorFieldAnnotation.computeConstantValue();
 
-      if (value != null) {
+      if (fieldValue != null) {
         final typeString = colorFieldAnnotation.element.toString();
         int first_i = typeString.indexOf('<');
         int last_i = typeString.lastIndexOf('>');
         final type = typeString.substring(first_i + 1, last_i).typeOverride;
 
-        final valueString = colorFieldAnnotation.toSource().replaceAll(sizingField, '');
-        first_i = valueString.indexOf('(');
-        final value = valueString.substring(first_i + 1, valueString.length - 1);
+        var valueString =
+            colorFieldAnnotation.toSource().replaceAll(colorField, '');
 
-        colorFields[element.name] = (type, value);
+        first_i = valueString.indexOf('>');
+
+        valueString =
+            first_i != -1 ? valueString.substring(first_i + 1) : valueString;
+
+        valueString = valueString.substring(1, valueString.length - 1);
+
+        int last_comma = valueString.lastIndexOf(',');
+        final value = valueString.contains('lerp')
+            ? valueString.substring(0, last_comma)
+            : valueString;
+
+        final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
+
+        colorFields[element.name] = (type, value, lerp);
       }
 
       return;
@@ -52,17 +65,34 @@ class ModelVisitor extends SimpleElementVisitor {
     );
 
     if (sizingFieldAnnotation != null) {
+      final fieldValue = sizingFieldAnnotation.computeConstantValue();
+
+      if (fieldValue == null) return;
+
       final typeString = sizingFieldAnnotation.element.toString();
 
       int first_i = typeString.indexOf('<');
       int last_i = typeString.lastIndexOf('>');
       final type = typeString.substring(first_i + 1, last_i).typeOverride;
 
-      final valueString = sizingFieldAnnotation.toSource().replaceAll(sizingField, '');
-      first_i = valueString.indexOf('(');
-      final value = valueString.substring(first_i + 1, valueString.length - 1);
+      var valueString =
+          sizingFieldAnnotation.toSource().replaceAll(sizingField, '');
 
-      sizingFields[element.name] = (type, value);
+      first_i = valueString.indexOf('>');
+
+      valueString =
+          first_i != -1 ? valueString.substring(first_i + 1) : valueString;
+
+      valueString = valueString.substring(1, valueString.length - 1);
+
+      int last_comma = valueString.lastIndexOf(',');
+      final value = valueString.contains('lerp')
+          ? valueString.substring(0, last_comma)
+          : valueString;
+
+      final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
+
+      sizingFields[element.name] = (type, value, lerp);
 
       return;
     }
@@ -78,16 +108,18 @@ class ModelVisitor extends SimpleElementVisitor {
       int last_i = typeString.lastIndexOf('>');
       final type = typeString.substring(first_i + 1, last_i).typeOverride;
 
-      final valueString = constantFieldAnnotation.toSource().replaceAll(sizingField, '');
+      final valueString =
+          constantFieldAnnotation.toSource().replaceAll(sizingField, '');
       first_i = valueString.indexOf('(');
       final value = valueString.substring(first_i + 1, valueString.length - 1);
 
-      constants[element.name] = (type, value);
+      constants[element.name] = (type, value, false);
 
       return;
     }
 
-    fields[element.name] = element.type.getDisplayString(withNullability: false);
+    fields[element.name] =
+        element.type.getDisplayString(withNullability: false);
   }
 }
 

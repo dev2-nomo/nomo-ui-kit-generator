@@ -159,14 +159,14 @@ class ComponentThemeDataGenerator
 
   String _colorThemeDataNullable({
     required String className,
-    required Map<String, (String, String)> colorFields,
+    required Map<String, (String, String, bool)> colorFields,
   }) {
     final buffer = StringBuffer();
 
     buffer.writeln("class $className {");
 
     for (var colorfieldEntry in colorFields.entries) {
-      final (type, _) = colorfieldEntry.value;
+      final (type, _, _) = colorfieldEntry.value;
       final name = colorfieldEntry.key;
 
       buffer.writeln("final ${type}? $name;");
@@ -193,14 +193,14 @@ class ComponentThemeDataGenerator
   String _colorThemeData({
     required String className,
     required String classNameNullable,
-    required Map<String, (String, String)> colorFields,
+    required Map<String, (String, String, bool)> colorFields,
   }) {
     final buffer = StringBuffer();
 
     buffer.writeln("class $className implements $classNameNullable{");
 
     for (var colorfieldEntry in colorFields.entries) {
-      final (type, value) = colorfieldEntry.value;
+      final (type, value, _) = colorfieldEntry.value;
       final name = colorfieldEntry.key;
       buffer.writeln("@override");
       buffer.writeln("final ${type.getNullablePostfix(value)} $name;");
@@ -211,7 +211,7 @@ class ComponentThemeDataGenerator
     if (colorFields.isNotEmpty) {
       buffer.writeln("{");
       for (var colorfieldEntry in colorFields.entries) {
-        final (type, value) = colorfieldEntry.value;
+        final (type, value, _) = colorfieldEntry.value;
         final name = colorfieldEntry.key;
         buffer.writeln("this.$name = ${(type, value).constPrefix} $value,");
       }
@@ -230,12 +230,13 @@ class ComponentThemeDataGenerator
       final name = entry.key;
       final type = entry.value.$1;
       final value = entry.value.$2;
+      final lerp = entry.value.$3;
 
       final dontUseLerp = switch (type) {
         "bool" => true,
         "BoxShape" => true,
         "Widget" => true,
-        _ => false,
+        _ => !lerp,
       };
       if (dontUseLerp) {
         buffer.writeln("$name: t < 0.5 ? a.$name : b.$name,");
@@ -322,14 +323,14 @@ class ComponentThemeDataGenerator
   ///
   String _sizingDataNullable({
     required String className,
-    required Map<String, (String, String)> sizingFields,
+    required Map<String, (String, String, bool)> sizingFields,
   }) {
     final buffer = StringBuffer();
 
     buffer.writeln("class $className {");
 
     for (var colorfieldEntry in sizingFields.entries) {
-      final (type, _) = colorfieldEntry.value;
+      final (type, _, _) = colorfieldEntry.value;
       final name = colorfieldEntry.key;
 
       buffer.writeln("final ${type}? $name;");
@@ -356,14 +357,14 @@ class ComponentThemeDataGenerator
   String _sizingData({
     required String className,
     required String classNameNullable,
-    required Map<String, (String, String)> sizingFields,
+    required Map<String, (String, String, bool)> sizingFields,
   }) {
     final buffer = StringBuffer();
 
     buffer.writeln("class $className implements $classNameNullable{");
 
     for (var colorfieldEntry in sizingFields.entries) {
-      final (type, value) = colorfieldEntry.value;
+      final (type, value, _) = colorfieldEntry.value;
 
       final name = colorfieldEntry.key;
       buffer.writeln("@override");
@@ -375,7 +376,7 @@ class ComponentThemeDataGenerator
     if (sizingFields.isNotEmpty) {
       buffer.writeln("{");
       for (var colorfieldEntry in sizingFields.entries) {
-        final (type, value) = colorfieldEntry.value;
+        final (type, value, _) = colorfieldEntry.value;
         final name = colorfieldEntry.key;
         buffer.writeln("this.$name = ${(type, value).constPrefix} $value,");
       }
@@ -394,12 +395,13 @@ class ComponentThemeDataGenerator
       final name = entry.key;
       final type = entry.value.$1;
       final value = entry.value.$2;
+      final lerp = entry.value.$3;
 
       final dontUseLerp = switch (type) {
         "bool" => true,
         "BoxShape" => true,
         "Widget" => true,
-        _ => false,
+        _ => !lerp,
       };
       if (dontUseLerp) {
         buffer.writeln("$name: t < 0.5 ? a.$name : b.$name,");
@@ -449,9 +451,9 @@ class ComponentThemeDataGenerator
     required String sizingdataClassName,
     required String themeDataClassNameNullable,
     required String constantClassName,
-    required Map<String, (String, String)> colorFields,
-    required Map<String, (String, String)> sizingFields,
-    required Map<String, (String, String)> constants,
+    required Map<String, (String, String, bool)> colorFields,
+    required Map<String, (String, String, bool)> sizingFields,
+    required Map<String, (String, String, bool)> constants,
   }) {
     final buffer = StringBuffer();
 
@@ -462,7 +464,7 @@ class ComponentThemeDataGenerator
     final fields = {...colorFields, ...sizingFields, ...constants};
 
     for (final field in fields.entries) {
-      final (type, value) = field.value;
+      final (type, value, _) = field.value;
       final name = field.key;
       buffer.writeln("@override");
       buffer.writeln("final ${type.getNullablePostfix(value)} $name;");
@@ -473,7 +475,7 @@ class ComponentThemeDataGenerator
     if (fields.isNotEmpty) {
       buffer.writeln("{");
       for (final field in fields.entries) {
-        final (type, value) = field.value;
+        final (type, value, _) = field.value;
         final name = field.key;
 
         buffer.writeln("this.$name = ${(type, value).constPrefix} $value,");
@@ -530,9 +532,9 @@ String _getThemeDataNullableClass({
   required String colordataClassNameNullable,
   required String sizingdataClassNameNullable,
   required String constantsName,
-  required Map<String, (String, String)> colorFields,
-  required Map<String, (String, String)> sizingFields,
-  required Map<String, (String, String)> constants,
+  required Map<String, (String, String, bool)> colorFields,
+  required Map<String, (String, String, bool)> sizingFields,
+  required Map<String, (String, String, bool)> constants,
 }) {
   final buffer = StringBuffer();
 
@@ -543,7 +545,7 @@ String _getThemeDataNullableClass({
   final fields = {...colorFields, ...sizingFields, ...constants};
 
   for (final field in fields.entries) {
-    final (type, _) = field.value;
+    final (type, _, _) = field.value;
     final name = field.key;
     buffer.writeln("@override");
     buffer.writeln("final ${type}? $name;");
@@ -574,9 +576,9 @@ String _getFromContext({
   required String themeName,
   required String overrideThemeInheritedWidgetClassName,
   required String constantsName,
-  required Map<String, (String, String)> colorFields,
-  required Map<String, (String, String)> sizingFields,
-  required Map<String, (String, String)> constants,
+  required Map<String, (String, String, bool)> colorFields,
+  required Map<String, (String, String, bool)> sizingFields,
+  required Map<String, (String, String, bool)> constants,
 }) {
   final buffer = StringBuffer();
 
@@ -633,14 +635,14 @@ String _getFromContext({
 ///
 String _constantsNullable({
   required String className,
-  required Map<String, (String, String)> constants,
+  required Map<String, (String, String, bool)> constants,
 }) {
   final buffer = StringBuffer();
 
   buffer.writeln("class $className {");
 
   for (var colorfieldEntry in constants.entries) {
-    final (type, _) = colorfieldEntry.value;
+    final (type, _, _) = colorfieldEntry.value;
     final name = colorfieldEntry.key;
 
     buffer.writeln("final ${type}? $name;");
@@ -667,14 +669,14 @@ String _constantsNullable({
 String _constants({
   required String className,
   required String classNameNullable,
-  required Map<String, (String, String)> constants,
+  required Map<String, (String, String, bool)> constants,
 }) {
   final buffer = StringBuffer();
 
   buffer.writeln("class $className implements $classNameNullable{");
 
   for (var colorfieldEntry in constants.entries) {
-    final (type, value) = colorfieldEntry.value;
+    final (type, value, _) = colorfieldEntry.value;
 
     final name = colorfieldEntry.key;
     buffer.writeln("@override");
@@ -686,7 +688,7 @@ String _constants({
   if (constants.isNotEmpty) {
     buffer.writeln("{");
     for (var colorfieldEntry in constants.entries) {
-      final (type, value) = colorfieldEntry.value;
+      final (type, value, _) = colorfieldEntry.value;
       final name = colorfieldEntry.key;
       buffer.writeln("this.$name = ${(type, value).constPrefix} $value,");
     }
