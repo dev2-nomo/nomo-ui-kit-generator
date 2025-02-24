@@ -1,12 +1,11 @@
+// ignore_for_file: cascade_invocations
+
+import 'package:analyzer/dart/constant/value.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
-import 'package:build/src/builder/build_step.dart';
 import 'package:nomo_ui_generator/annotations.dart';
 import 'package:nomo_ui_generator/src/theme_data_generator.dart';
 import 'package:source_gen/source_gen.dart';
-
-import 'package:analyzer/dart/constant/value.dart';
-// ignore: implementation_imports
 
 class ThemeUtilGenerator extends GeneratorForAnnotation<NomoThemeUtils> {
   @override
@@ -18,27 +17,24 @@ class ThemeUtilGenerator extends GeneratorForAnnotation<NomoThemeUtils> {
     // Cast the Element instance to VariableElement
     final variableElement = element as VariableElement;
 
-    final String className = annotation.read('name').stringValue;
+    final className = annotation.read('name').stringValue;
 
     final fields =
         variableElement.computeConstantValue()?.toListValue() ?? <DartObject>[];
 
     final fieldMap = <String, String>{};
 
-    fields.forEach((element) {
-      final typeName =
-          element.toTypeValue()!.getDisplayString(withNullability: false);
+    for (final element in fields) {
+      final typeName = element.toTypeValue()!.getDisplayString();
 
       var variableName = typeName.replaceAll('Nomo', '').replaceAll('Data', '');
       variableName = variableName.substring(0, 1).toLowerCase() +
           variableName.substring(1);
 
       fieldMap[variableName] = typeName;
-    });
+    }
 
-    final buffer = StringBuffer();
-
-    buffer.writeln(ignore_lints);
+    final buffer = StringBuffer()..writeln(ignore_lints);
 
     lerp(buffer, className, fieldMap);
 
@@ -56,15 +52,17 @@ void lerp(
   String className,
   Map<String, String> fields,
 ) {
-  buffer.writeln(
-    '$className lerp$className($className a, $className b, double t) {',
-  );
-  buffer.writeln('return $className(');
+  buffer
+    ..writeln(
+      '$className lerp$className($className a, $className b, double t) {',
+    )
+    ..writeln('return $className(');
   fields.forEach((key, value) {
     buffer.writeln('$key: $value.lerp(a.$key, b.$key, t,),');
   });
-  buffer.writeln(');');
-  buffer.writeln('}');
+  buffer
+    ..writeln(');')
+    ..writeln('}');
 }
 
 void classes(
@@ -118,10 +116,4 @@ void overrideExtension(
   buffer.writeln(');');
   buffer.writeln('}');
   buffer.writeln('}');
-}
-
-extension on List<DartObject> {
-  List<Map<String, DartObject>> get namedArgumentsList {
-    return map((e) => ConstantReader(e).revive().namedArguments).toList();
-  }
 }
