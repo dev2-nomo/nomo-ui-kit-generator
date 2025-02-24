@@ -9,3 +9,7 @@ Update Lint Ignores in generated Files.
 ## 0.0.3
 
 Add optional lerp parameter in NomoColorField and NomoSizingField Annotations to disable linear lerping
+
+## 0.0.4
+
+Update dependencies and Quanlity of Life

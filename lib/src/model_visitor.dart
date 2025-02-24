@@ -1,29 +1,78 @@
-import 'package:analyzer/dart/element/visitor.dart';
 import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/visitor.dart';
 import 'package:collection/collection.dart';
 
-const colorField = "@NomoColorField";
-const sizingField = "@NomoSizingField";
-const constantField = "@NomoConstant";
+const colorField = '@NomoColorField';
+const sizingField = '@NomoSizingField';
+const constantField = '@NomoConstant';
 
-class ModelVisitor extends SimpleElementVisitor {
+typedef FieldInfo = ({String type, String value, bool lerp});
+
+extension FieldInfoUtil on FieldInfo {
+  bool get isNullable => type.contains('?');
+
+  String get typeWithoutNull =>
+      isNullable ? type.substring(0, type.length - 1) : type;
+
+  String nullableFieldDeclaration(String name) {
+    return 'final ${isNullable ? type : '$type?'} $name;';
+  }
+
+  String nonNullableFieldDeclaration(String name) {
+    return 'final $type $name;';
+  }
+
+  String nonNullableConstrcutorFieldDeclaration(String name) {
+    return 'this.$name = $constPrefix $value,';
+  }
+
+  String lerpFunction(String name) {
+    final dontUseLerp = switch (typeWithoutNull) {
+      'bool' => true,
+      'BoxShape' => true,
+      'Widget' => true,
+      _ => !lerp,
+    };
+    if (dontUseLerp) {
+      return '$name: t < 0.5 ? a.$name : b.$name,';
+    }
+
+    final nullAssertion =
+        type.getNullablePostfix(value).contains('?') ? '' : '!';
+
+    if (type == 'double') {
+      return '$name: lerpDouble(a.$name, b.$name, t)$nullAssertion,';
+    }
+
+    return '$name: $typeWithoutNull.lerp(a.$name, b.$name, t)$nullAssertion,';
+  }
+
+  String get constPrefix {
+    if (value.contains('(')) {
+      return 'const';
+    }
+    return '';
+  }
+}
+
+class ModelVisitor extends SimpleElementVisitor<void> {
   String? className;
 
   Map<String, dynamic> fields = {};
 
-  Map<String, (String, String, bool)> colorFields = {};
+  Map<String, FieldInfo> colorFields = {};
 
-  Map<String, (String, String, bool)> sizingFields = {};
+  Map<String, FieldInfo> sizingFields = {};
 
-  Map<String, (String, String, bool)> constants = {};
+  Map<String, FieldInfo> constants = {};
 
   @override
-  visitConstructorElement(ConstructorElement element) {
+  void visitConstructorElement(ConstructorElement element) {
     className = element.type.returnType.toString();
   }
 
   @override
-  visitFieldElement(FieldElement element) {
+  void visitFieldElement(FieldElement element) {
     final colorFieldAnnotation = element.metadata.singleWhereOrNull(
       (annotation) => annotation.toSource().startsWith(colorField),
     );
@@ -54,7 +103,7 @@ class ModelVisitor extends SimpleElementVisitor {
 
         final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
 
-        colorFields[element.name] = (type, value, lerp);
+        colorFields[element.name] = (type: type, value: value, lerp: lerp);
       }
 
       return;
@@ -92,7 +141,7 @@ class ModelVisitor extends SimpleElementVisitor {
 
       final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
 
-      sizingFields[element.name] = (type, value, lerp);
+      sizingFields[element.name] = (type: type, value: value, lerp: lerp);
 
       return;
     }
@@ -113,21 +162,20 @@ class ModelVisitor extends SimpleElementVisitor {
       first_i = valueString.indexOf('(');
       final value = valueString.substring(first_i + 1, valueString.length - 1);
 
-      constants[element.name] = (type, value, false);
+      constants[element.name] = (type: type, value: value, lerp: false);
 
       return;
     }
 
-    fields[element.name] =
-        element.type.getDisplayString(withNullability: false);
+    fields[element.name] = element.type.getDisplayString();
   }
 }
 
 extension DartObjectUtil on String {
   String get typeOverride {
     return switch (this) {
-      "EdgeInsets" => "EdgeInsetsGeometry",
-      "MaterialColor" => "Color",
+      'EdgeInsets' => 'EdgeInsetsGeometry',
+      'MaterialColor' => 'Color',
       _ => this,
     };
   }
@@ -137,14 +185,5 @@ extension DartObjectUtil on String {
       "null" || "Null" => "?",
       _ => "",
     }}";
-  }
-}
-
-extension DartTypeUtil on (String, String) {
-  String get constPrefix {
-    return switch (this) {
-      (_, String val) when !val.contains('(') => "",
-      _ => "const",
-    };
   }
 }
