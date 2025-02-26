@@ -13,3 +13,7 @@ Add optional lerp parameter in NomoColorField and NomoSizingField Annotations to
 ## 0.0.4
 
 Update dependencies and Quanlity of Life
+
+## 0.0.5
+
+Require sdk 3.6 
