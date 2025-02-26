@@ -1,6 +1,6 @@
 name: nomo_ui_generator
 description: BuildRunner Generator for the Development of the Nomo-UI-Kit
-version: 0.0.5
+version: 0.1.0
 repository: https://github.com/dev2-nomo/nomo-ui-kit-generator
 homepage: https://nomo.app
 
@@ -11,10 +11,4 @@ dependencies:
   analyzer: ^7.3.0
   build: ^2.4.2
   source_gen: ^2.0.0
-  collection: ^1.19.1
-
-
-
-
-
-
+  collection: ^1.19.0

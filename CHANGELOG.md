@@ -17,3 +17,7 @@ Update dependencies and Quanlity of Life
 ## 0.0.5
 
 Require sdk 3.6 
+
+## 0.1.0
+
+Relax collection dependency
