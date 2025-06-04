@@ -11,8 +11,7 @@ typedef FieldInfo = ({String type, String value, bool lerp});
 extension FieldInfoUtil on FieldInfo {
   bool get isNullable => type.contains('?');
 
-  String get typeWithoutNull =>
-      isNullable ? type.substring(0, type.length - 1) : type;
+  String get typeWithoutNull => isNullable ? type.substring(0, type.length - 1) : type;
 
   String nullableFieldDeclaration(String name) {
     return 'final ${isNullable ? type : '$type?'} $name;';
@@ -37,11 +36,14 @@ extension FieldInfoUtil on FieldInfo {
       return '$name: t < 0.5 ? a.$name : b.$name,';
     }
 
-    final nullAssertion =
-        type.getNullablePostfix(value).contains('?') ? '' : '!';
+    final nullAssertion = type.getNullablePostfix(value).contains('?') ? '' : '!';
 
     if (type == 'double') {
       return '$name: lerpDouble(a.$name, b.$name, t)$nullAssertion,';
+    }
+
+    if (type == 'double?') {
+      return '$name: lerpDouble(a.$name, b.$name, t),';
     }
 
     return '$name: $typeWithoutNull.lerp(a.$name, b.$name, t)$nullAssertion,';
@@ -86,20 +88,17 @@ class ModelVisitor extends SimpleElementVisitor<void> {
         int last_i = typeString.lastIndexOf('>');
         final type = typeString.substring(first_i + 1, last_i).typeOverride;
 
-        var valueString =
-            colorFieldAnnotation.toSource().replaceAll(colorField, '');
+        var valueString = colorFieldAnnotation.toSource().replaceAll(colorField, '');
 
         first_i = valueString.indexOf('>');
 
-        valueString =
-            first_i != -1 ? valueString.substring(first_i + 1) : valueString;
+        valueString = first_i != -1 ? valueString.substring(first_i + 1) : valueString;
 
         valueString = valueString.substring(1, valueString.length - 1);
 
         int last_comma = valueString.lastIndexOf(',');
-        final value = valueString.contains('lerp')
-            ? valueString.substring(0, last_comma)
-            : valueString;
+        final value =
+            valueString.contains('lerp') ? valueString.substring(0, last_comma) : valueString;
 
         final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
 
@@ -124,20 +123,17 @@ class ModelVisitor extends SimpleElementVisitor<void> {
       int last_i = typeString.lastIndexOf('>');
       final type = typeString.substring(first_i + 1, last_i).typeOverride;
 
-      var valueString =
-          sizingFieldAnnotation.toSource().replaceAll(sizingField, '');
+      var valueString = sizingFieldAnnotation.toSource().replaceAll(sizingField, '');
 
       first_i = valueString.indexOf('>');
 
-      valueString =
-          first_i != -1 ? valueString.substring(first_i + 1) : valueString;
+      valueString = first_i != -1 ? valueString.substring(first_i + 1) : valueString;
 
       valueString = valueString.substring(1, valueString.length - 1);
 
       int last_comma = valueString.lastIndexOf(',');
-      final value = valueString.contains('lerp')
-          ? valueString.substring(0, last_comma)
-          : valueString;
+      final value =
+          valueString.contains('lerp') ? valueString.substring(0, last_comma) : valueString;
 
       final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
 
@@ -157,8 +153,7 @@ class ModelVisitor extends SimpleElementVisitor<void> {
       int last_i = typeString.lastIndexOf('>');
       final type = typeString.substring(first_i + 1, last_i).typeOverride;
 
-      final valueString =
-          constantFieldAnnotation.toSource().replaceAll(sizingField, '');
+      final valueString = constantFieldAnnotation.toSource().replaceAll(sizingField, '');
       first_i = valueString.indexOf('(');
       final value = valueString.substring(first_i + 1, valueString.length - 1);
 
