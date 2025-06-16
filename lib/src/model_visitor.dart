@@ -30,6 +30,7 @@ extension FieldInfoUtil on FieldInfo {
       'bool' => true,
       'BoxShape' => true,
       'Widget' => true,
+      'IconData' => true,
       _ => !lerp,
     };
     if (dontUseLerp) {
@@ -97,8 +98,9 @@ class ModelVisitor extends SimpleElementVisitor<void> {
         valueString = valueString.substring(1, valueString.length - 1);
 
         int last_comma = valueString.lastIndexOf(',');
-        final value =
-            valueString.contains('lerp') ? valueString.substring(0, last_comma) : valueString;
+        final value = valueString.contains('lerp')
+            ? valueString.substring(0, last_comma)
+            : valueString;
 
         final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
 
@@ -132,8 +134,9 @@ class ModelVisitor extends SimpleElementVisitor<void> {
       valueString = valueString.substring(1, valueString.length - 1);
 
       int last_comma = valueString.lastIndexOf(',');
-      final value =
-          valueString.contains('lerp') ? valueString.substring(0, last_comma) : valueString;
+      final value = valueString.contains('lerp')
+          ? valueString.substring(0, last_comma)
+          : valueString;
 
       final lerp = fieldValue.getField('lerp')?.toBoolValue() ?? true;
 
