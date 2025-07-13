@@ -30,6 +30,7 @@ extension FieldInfoUtil on FieldInfo {
       'bool' => true,
       'BoxShape' => true,
       'Widget' => true,
+      'IconData' => true,
       _ => !lerp,
     };
     if (dontUseLerp) {
@@ -169,7 +170,7 @@ class ModelVisitor extends SimpleElementVisitor<void> {
 extension DartObjectUtil on String {
   String get typeOverride {
     return switch (this) {
-      'EdgeInsets' => 'EdgeInsetsGeometry',
+      // 'EdgeInsets' => 'EdgeInsetsGeometry',
       'MaterialColor' => 'Color',
       _ => this,
     };
